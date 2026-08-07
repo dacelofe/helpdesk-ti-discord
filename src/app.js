@@ -3,6 +3,7 @@ const cors = require("cors");
 const path = require("path");
 
 const chamadoRoutes = require("./routes/chamadoRoutes");
+const webhookRoutes = require("./routes/webhookRoutes");
 
 const app = express();
 
@@ -21,5 +22,6 @@ app.use(express.static(path.join(__dirname, "../public")));
 */
 
 app.use("/api", chamadoRoutes);
+app.use("/webhook", webhookRoutes);
 
 module.exports = app;
