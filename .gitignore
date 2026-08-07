@@ -9,4 +9,8 @@ yarn-error.log*
 
 .DS_Store
 
+*.db
+*.db-shm
+*.db-wal
+
 .vscode/

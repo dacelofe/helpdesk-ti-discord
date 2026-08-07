@@ -2,6 +2,8 @@ require("dotenv").config();
 
 require("./config/discordClient");
 
+require("./database/init");
+
 const app = require("./app");
 
 const PORT = process.env.PORT || 3000;
