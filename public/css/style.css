@@ -1,0 +1,460 @@
+/* ==========================
+   RESET
+========================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:#f4f6f9;
+    color:#333;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+}
+
+/* ==========================
+   NAVBAR
+========================== */
+
+.navbar{
+
+    width:100%;
+
+    background:#1f2937;
+
+    color:#fff;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:18px 40px;
+
+    box-shadow:0 3px 10px rgba(0,0,0,.12);
+
+}
+
+.logo{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    font-size:24px;
+
+    font-weight:600;
+
+}
+
+.logo i{
+
+    font-size:28px;
+
+    color:#3b82f6;
+
+}
+
+.status-discord{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    font-size:15px;
+
+}
+
+.status{
+
+    width:12px;
+
+    height:12px;
+
+    border-radius:50%;
+
+}
+
+.online{
+
+    background:#22c55e;
+
+}
+
+.btn-voltar{
+
+    color:#fff;
+
+    text-decoration:none;
+
+    background:#2563eb;
+
+    padding:10px 18px;
+
+    border-radius:8px;
+
+    transition:.3s;
+
+}
+
+.btn-voltar:hover{
+
+    background:#1d4ed8;
+
+}
+
+/* ==========================
+   CONTAINER
+========================== */
+
+.container{
+
+    width:95%;
+
+    max-width:1200px;
+
+    margin:40px auto;
+
+    flex:1;
+
+}
+
+/* ==========================
+   HERO
+========================== */
+
+.hero{
+
+    text-align:center;
+
+    margin-bottom:40px;
+
+}
+
+.hero h1{
+
+    font-size:40px;
+
+    color:#1f2937;
+
+}
+
+.hero p{
+
+    margin-top:15px;
+
+    color:#6b7280;
+
+    font-size:18px;
+
+}
+
+/* ==========================
+   CARDS
+========================== */
+
+.cards{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+
+    gap:20px;
+
+    margin-bottom:40px;
+
+}
+
+.card{
+
+    background:#fff;
+
+    border-radius:12px;
+
+    padding:25px;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+
+    text-align:center;
+
+}
+
+.card i{
+
+    font-size:42px;
+
+    color:#2563eb;
+
+    margin-bottom:15px;
+
+}
+
+.card h3{
+
+    margin-bottom:10px;
+
+}
+
+.card p{
+
+    color:#6b7280;
+
+}
+
+/* ==========================
+   BOTÃO
+========================== */
+
+.actions{
+
+    text-align:center;
+
+    margin-bottom:35px;
+
+}
+
+.btn-primary{
+
+    display:inline-block;
+
+    background:#2563eb;
+
+    color:#fff;
+
+    padding:14px 30px;
+
+    border:none;
+
+    border-radius:10px;
+
+    text-decoration:none;
+
+    cursor:pointer;
+
+    font-size:16px;
+
+    transition:.3s;
+
+}
+
+.btn-primary:hover{
+
+    background:#1d4ed8;
+
+}
+
+/* ==========================
+   FORMULÁRIO
+========================== */
+
+.form-card{
+
+    background:#fff;
+
+    padding:35px;
+
+    border-radius:12px;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+
+}
+
+.form-card h1{
+
+    margin-bottom:10px;
+
+}
+
+.subtitle{
+
+    color:#777;
+
+    margin-bottom:30px;
+
+}
+
+.form-group{
+
+    display:flex;
+
+    flex-direction:column;
+
+    margin-bottom:20px;
+
+}
+
+.form-group label{
+
+    margin-bottom:8px;
+
+    font-weight:500;
+
+}
+
+.form-group input,
+
+.form-group select,
+
+.form-group textarea{
+
+    padding:14px;
+
+    border:1px solid #d1d5db;
+
+    border-radius:8px;
+
+    outline:none;
+
+    font-size:15px;
+
+    transition:.3s;
+
+}
+
+.form-group input:focus,
+
+.form-group select:focus,
+
+.form-group textarea:focus{
+
+    border-color:#2563eb;
+
+}
+
+textarea{
+
+    resize:vertical;
+
+}
+
+/* ==========================
+   RADIO
+========================== */
+
+.radio-group{
+
+    display:flex;
+
+    gap:25px;
+
+    margin-top:10px;
+
+}
+
+.radio-group label{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+}
+
+/* ==========================
+   RESULTADO
+========================== */
+
+.resultado-card{
+
+    margin-top:30px;
+
+    display:none;
+
+    background:#ecfdf5;
+
+    border-left:5px solid #22c55e;
+
+    padding:25px;
+
+    border-radius:10px;
+
+}
+
+.resultado-card h2{
+
+    color:#166534;
+
+    margin-bottom:20px;
+
+}
+
+.resultado-card p{
+
+    margin-bottom:10px;
+
+}
+
+/* ==========================
+   MENSAGEM
+========================== */
+
+.mensagem{
+
+    margin-top:30px;
+
+}
+
+/* ==========================
+   FOOTER
+========================== */
+
+footer{
+
+    background:#1f2937;
+
+    color:#fff;
+
+    text-align:center;
+
+    padding:18px;
+
+    margin-top:40px;
+
+}
+
+/* ==========================
+   RESPONSIVO
+========================== */
+
+@media(max-width:768px){
+
+    .navbar{
+
+        flex-direction:column;
+
+        gap:15px;
+
+    }
+
+    .hero h1{
+
+        font-size:28px;
+
+    }
+
+    .container{
+
+        width:92%;
+
+    }
+
+    .radio-group{
+
+        flex-direction:column;
+
+        gap:10px;
+
+    }
+
+}
