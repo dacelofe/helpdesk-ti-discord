@@ -1,6 +1,5 @@
 const discord = require("../services/discordService");
-
-let protocolo = 1;
+const chamadoService = require("../services/chamadoService");
 
 exports.status = (req, res) => {
 
@@ -24,21 +23,46 @@ exports.criarChamado = async (req, res) => {
 
         const chamado = req.body;
 
-        const numero = protocolo++;
+        console.log("================================");
+        console.log("Novo chamado recebido");
+        console.log(chamado);
+        console.log("================================");
 
-        const discordId = await discord.enviarMensagem(
+        // 1. Grava o chamado no banco
+        const registro = chamadoService.criar(chamado);
 
-            numero,
-
-            chamado
-
+        console.log(
+            "Chamado gravado no banco. Protocolo:",
+            registro.protocolo
         );
 
+        // 2. Envia o chamado para o Discord
+        const discordId = await discord.enviarMensagem(
+            registro.protocolo,
+            chamado
+        );
+
+        console.log(
+            "Mensagem enviada ao Discord:",
+            discordId
+        );
+
+        // 3. Atualiza o registro com o ID da mensagem
+        chamadoService.atualizarDiscordMessageId(
+            registro.id,
+            discordId
+        );
+
+        console.log(
+            "Chamado atualizado com ID do Discord."
+        );
+
+        // 4. Resposta para o frontend
         res.json({
 
             success: true,
 
-            protocolo: numero,
+            protocolo: registro.protocolo,
 
             status: "Enviado",
 
@@ -50,17 +74,21 @@ exports.criarChamado = async (req, res) => {
 
     catch (erro) {
 
-    console.error("========== ERRO COMPLETO ==========");
-    console.error(erro);
-    console.error("Mensagem:", erro.message);
-    console.error("Stack:", erro.stack);
-    console.error("===================================");
+        console.error("================================");
+        console.error("ERRO AO CRIAR CHAMADO");
+        console.error("Nome:", erro.name);
+        console.error("Mensagem:", erro.message);
+        console.error("Stack:", erro.stack);
+        console.error("================================");
 
-    res.status(500).json({
-        success: false,
-        message: erro.message
-    });
+        res.status(500).json({
 
-}
+            success: false,
+
+            message: erro.message
+
+        });
+
+    }
 
 };
