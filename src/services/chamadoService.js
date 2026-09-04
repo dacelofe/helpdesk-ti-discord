@@ -1,17 +1,10 @@
 const db = require("../database/database");
 
-exports.criar = (chamado) => {
-
-    const ultimoChamado = db.prepare(`
-        SELECT protocolo
+const inserirChamado = db.transaction((chamado) => {
+    const proximo = db.prepare(`
+        SELECT COALESCE(MAX(protocolo), 0) + 1 AS protocolo
         FROM chamados
-        ORDER BY protocolo DESC
-        LIMIT 1
     `).get();
-
-    const protocolo = ultimoChamado
-        ? ultimoChamado.protocolo + 1
-        : 1;
 
     const resultado = db.prepare(`
         INSERT INTO chamados (
@@ -25,7 +18,7 @@ exports.criar = (chamado) => {
         )
         VALUES (?, ?, ?, ?, ?, ?, ?)
     `).run(
-        protocolo,
+        proximo.protocolo,
         chamado.nome,
         chamado.departamento,
         chamado.categoria,
@@ -36,12 +29,13 @@ exports.criar = (chamado) => {
 
     return {
         id: resultado.lastInsertRowid,
-        protocolo
+        protocolo: proximo.protocolo
     };
-};
+});
+
+exports.criar = (chamado) => inserirChamado(chamado);
 
 exports.atualizarEnvio = (id, status, discordMessageId) => {
-
     db.prepare(`
         UPDATE chamados
         SET status = ?, discord_message_id = ?

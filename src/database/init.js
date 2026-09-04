@@ -23,6 +23,25 @@ db.exec(`
     );
 `);
 
-console.log("Tabelas verificadas/criadas.");
+const protocolosDuplicados = db.prepare(`
+    SELECT 1
+    FROM chamados
+    GROUP BY protocolo
+    HAVING COUNT(*) > 1
+    LIMIT 1
+`).get();
+
+if (protocolosDuplicados) {
+    console.warn(
+        "Índice único de protocolo não criado: há protocolos duplicados existentes."
+    );
+} else {
+    db.exec(`
+        CREATE UNIQUE INDEX IF NOT EXISTS chamados_protocolo_unique
+        ON chamados (protocolo)
+    `);
+}
+
+console.log("Tabelas do banco verificadas.");
 
 module.exports = db;
