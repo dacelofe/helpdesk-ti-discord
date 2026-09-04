@@ -9,6 +9,15 @@ RUN apt-get update \
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
+FROM dependencies AS test
+
+COPY src ./src
+COPY public ./public
+COPY test ./test
+COPY scripts ./scripts
+
+RUN npm run check && npm test
+
 FROM node:22-bookworm-slim AS runtime
 
 ENV NODE_ENV=production \
