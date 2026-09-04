@@ -1,15 +1,18 @@
 const discord = require("../services/discordService");
 const chamadoService = require("../services/chamadoService");
+const { obterEstadoDiscord } = require("../config/discordClient");
 
 exports.status = (req, res) => {
+
+    const estadoDiscord = obterEstadoDiscord();
 
     res.json({
 
         backend: "Online",
 
-        discord: "Pronto",
+        discord: estadoDiscord.conectado ? "Pronto" : "Indisponível",
 
-        bot: "HelpDeskBOT",
+        bot: estadoDiscord.usuario || "HelpDeskBOT",
 
         canal: "#suporte"
 

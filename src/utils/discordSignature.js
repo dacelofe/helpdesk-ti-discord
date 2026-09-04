@@ -1,8 +1,11 @@
 const nacl = require("tweetnacl");
+const { getConfig } = require("../config");
 
 exports.validarAssinatura = (req) => {
 
-    if (process.env.DISCORD_VALIDATE_SIGNATURE !== "true") {
+    const config = getConfig();
+
+    if (!config.discord.validateSignature) {
 
         console.log("Validação de assinatura desabilitada.");
 
@@ -12,7 +15,7 @@ exports.validarAssinatura = (req) => {
 
     const signature = req.header("X-Signature-Ed25519");
     const timestamp = req.header("X-Signature-Timestamp");
-    const publicKey = process.env.DISCORD_PUBLIC_KEY;
+    const publicKey = config.discord.publicKey;
 
     if (
         typeof req.rawBody !== "string" ||

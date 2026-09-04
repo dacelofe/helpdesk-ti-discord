@@ -1,6 +1,9 @@
 require("dotenv").config();
 
 const { REST, Routes, SlashCommandBuilder } = require("discord.js");
+const { getConfig } = require("./config");
+
+const config = getConfig();
 
 const commands = [
 
@@ -18,7 +21,7 @@ const rest = new REST({
 
 }).setToken(
 
-    process.env.DISCORD_TOKEN
+    config.discord.token
 
 );
 
@@ -38,7 +41,7 @@ const rest = new REST({
 
             Routes.applicationCommands(
 
-                process.env.DISCORD_APPLICATION_ID
+                config.discord.applicationId
 
             ),
 

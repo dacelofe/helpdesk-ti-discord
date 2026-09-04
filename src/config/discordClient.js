@@ -1,21 +1,62 @@
-const { Client, GatewayIntentBits } = require("discord.js");
+const { Client, Events, GatewayIntentBits } = require("discord.js");
 
-const client = new Client({
-    intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent
-    ]
-});
+let client;
 
-client.once("clientReady", () => {
-    console.log("");
-    console.log("===================================");
-    console.log(`Bot conectado: ${client.user.tag}`);
-    console.log("===================================");
-    console.log("");
-});
+async function iniciarDiscord(token) {
+    if (!token) {
+        console.warn("Discord não iniciado: DISCORD_TOKEN ausente.");
+        return false;
+    }
 
-client.login(process.env.DISCORD_TOKEN);
+    if (client) {
+        return client.isReady();
+    }
 
-module.exports = client;
+    client = new Client({
+        intents: [GatewayIntentBits.Guilds]
+    });
+
+    client.once(Events.ClientReady, (clientePronto) => {
+        console.log(`Bot Discord conectado como ${clientePronto.user.tag}.`);
+    });
+
+    try {
+        await client.login(token);
+        return client.isReady();
+    } catch (erro) {
+        client.destroy();
+        client = undefined;
+        throw erro;
+    }
+}
+
+function obterClienteDiscord() {
+    if (!client || !client.isReady()) {
+        throw new Error("Cliente Discord indisponível.");
+    }
+
+    return client;
+}
+
+function obterEstadoDiscord() {
+    return {
+        conectado: Boolean(client?.isReady()),
+        usuario: client?.user?.tag || null
+    };
+}
+
+async function encerrarDiscord() {
+    if (!client) {
+        return;
+    }
+
+    client.destroy();
+    client = undefined;
+}
+
+module.exports = {
+    iniciarDiscord,
+    obterClienteDiscord,
+    obterEstadoDiscord,
+    encerrarDiscord
+};

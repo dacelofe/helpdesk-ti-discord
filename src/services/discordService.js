@@ -1,4 +1,5 @@
-const client = require("../config/discordClient");
+const { getConfig } = require("../config");
+const { obterClienteDiscord } = require("../config/discordClient");
 
 exports.enviarMensagem = async (protocolo, chamado) => {
 
@@ -7,7 +8,8 @@ exports.enviarMensagem = async (protocolo, chamado) => {
         console.log("Enviando mensagem ao Discord...");
         console.log("Canal:", process.env.DISCORD_CHANNEL_ID);
 
-        const canal = await client.channels.fetch(process.env.DISCORD_CHANNEL_ID);
+        const client = obterClienteDiscord();
+        const canal = await client.channels.fetch(getConfig().discord.channelId);
         console.log("Canal encontrado:", canal?.name);
 console.log("Tipo:", canal?.type);
 
