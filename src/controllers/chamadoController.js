@@ -1,97 +1,71 @@
 const discord = require("../services/discordService");
 const chamadoService = require("../services/chamadoService");
 const { obterEstadoDiscord } = require("../config/discordClient");
+const { bancoDisponivel } = require("./healthController");
+const {
+    ErroValidacao,
+    validarChamado
+} = require("../utils/chamadoValidation");
 
 exports.status = (req, res) => {
-
     const estadoDiscord = obterEstadoDiscord();
 
     res.json({
-
         backend: "Online",
-
+        database: bancoDisponivel() ? "Pronto" : "Indisponível",
         discord: estadoDiscord.conectado ? "Pronto" : "Indisponível",
-
         bot: estadoDiscord.usuario || "HelpDeskBOT",
-
         canal: "#suporte"
-
     });
-
 };
 
 exports.criarChamado = async (req, res) => {
-
     try {
-
-        const chamado = req.body;
-
-        console.log("================================");
-        console.log("Novo chamado recebido");
-        console.log(chamado);
-        console.log("================================");
-
-        // 1. Grava o chamado no banco
+        const chamado = validarChamado(req.body);
         const registro = chamadoService.criar(chamado);
 
-        console.log(
-            "Chamado gravado no banco. Protocolo:",
-            registro.protocolo
-        );
+        console.log(`Chamado ${registro.protocolo} gravado no banco.`);
 
-        // 2. Envia o chamado para o Discord
-        const discordId = await discord.enviarMensagem(
-            registro.protocolo,
-            chamado
-        );
+        let discordId;
 
-        console.log(
-            "Mensagem enviada ao Discord:",
-            discordId
-        );
+        try {
+            discordId = await discord.enviarMensagem(
+                registro.protocolo,
+                chamado
+            );
 
-        // 3. Atualiza o registro com o ID da mensagem
-        chamadoService.atualizarDiscordMessageId(
-            registro.id,
-            discordId
-        );
+            chamadoService.atualizarEnvio(registro.id, "Enviado", discordId);
+        } catch (erro) {
+            chamadoService.atualizarEnvio(registro.id, "Falha no envio", null);
+            console.error(`Falha ao enviar o chamado ${registro.protocolo} ao Discord.`);
 
-        console.log(
-            "Chamado atualizado com ID do Discord."
-        );
+            return res.status(502).json({
+                success: false,
+                message: "Chamado registrado, mas não foi possível enviá-lo ao Discord.",
+                protocolo: registro.protocolo,
+                status: "Falha no envio"
+            });
+        }
 
-        // 4. Resposta para o frontend
-        res.json({
-
+        return res.json({
             success: true,
-
             protocolo: registro.protocolo,
-
             status: "Enviado",
-
             discordMessageId: discordId
-
         });
+    } catch (erro) {
+        if (erro instanceof ErroValidacao) {
+            return res.status(400).json({
+                success: false,
+                message: erro.message
+            });
+        }
 
-    }
+        console.error(`Erro ao criar chamado: ${erro.name}.`);
 
-    catch (erro) {
-
-        console.error("================================");
-        console.error("ERRO AO CRIAR CHAMADO");
-        console.error("Nome:", erro.name);
-        console.error("Mensagem:", erro.message);
-        console.error("Stack:", erro.stack);
-        console.error("================================");
-
-        res.status(500).json({
-
+        return res.status(500).json({
             success: false,
-
-            message: erro.message
-
+            message: "Não foi possível criar o chamado."
         });
-
     }
-
 };

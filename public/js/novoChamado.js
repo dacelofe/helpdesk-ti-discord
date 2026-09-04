@@ -4,10 +4,6 @@ form.addEventListener("submit", async function (e) {
 
     e.preventDefault();
 
-    console.log("================================");
-    console.log("Formulário enviado.");
-    console.log("================================");
-
     const dados = {
 
         nome: document.getElementById("nome").value,
@@ -28,8 +24,6 @@ form.addEventListener("submit", async function (e) {
 
     };
 
-    console.log("Dados do chamado:", dados);
-
     const botao = form.querySelector("button[type='submit']");
 
     try {
@@ -43,8 +37,6 @@ form.addEventListener("submit", async function (e) {
         `;
 
         const resposta = await criarChamado(dados);
-
-        console.log("Resposta recebida:", resposta);
 
         // Exibe o card de resultado
         const resultado =

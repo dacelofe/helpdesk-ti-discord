@@ -40,13 +40,14 @@ exports.criar = (chamado) => {
     };
 };
 
-exports.atualizarDiscordMessageId = (id, discordMessageId) => {
+exports.atualizarEnvio = (id, status, discordMessageId) => {
 
     db.prepare(`
         UPDATE chamados
-        SET discord_message_id = ?
+        SET status = ?, discord_message_id = ?
         WHERE id = ?
     `).run(
+        status,
         discordMessageId,
         id
     );
