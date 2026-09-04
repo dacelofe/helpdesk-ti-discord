@@ -12,17 +12,27 @@ exports.validarAssinatura = (req) => {
 
     const signature = req.header("X-Signature-Ed25519");
     const timestamp = req.header("X-Signature-Timestamp");
+    const publicKey = process.env.DISCORD_PUBLIC_KEY;
 
-    if (!signature || !timestamp) {
+    if (
+        typeof req.rawBody !== "string" ||
+        !/^[0-9a-fA-F]{128}$/.test(signature || "") ||
+        typeof timestamp !== "string" ||
+        timestamp.length === 0 ||
+        timestamp.length > 64 ||
+        !/^[0-9a-fA-F]{64}$/.test(publicKey || "")
+    ) {
         return false;
     }
 
-    const body = JSON.stringify(req.body);
-
-    return nacl.sign.detached.verify(
-        Buffer.from(timestamp + body),
-        Buffer.from(signature, "hex"),
-        Buffer.from(process.env.DISCORD_PUBLIC_KEY, "hex")
-    );
+    try {
+        return nacl.sign.detached.verify(
+            Buffer.from(timestamp + req.rawBody, "utf8"),
+            Buffer.from(signature, "hex"),
+            Buffer.from(publicKey, "hex")
+        );
+    } catch (erro) {
+        return false;
+    }
 
 };
