@@ -28,6 +28,11 @@ function lerPorta(valor) {
 
 function createConfig(env = process.env) {
     const nodeEnv = env.NODE_ENV || "development";
+
+    if (!["development", "test", "production"].includes(nodeEnv)) {
+        throw new Error("NODE_ENV deve ser development, test ou production.");
+    }
+
     const production = nodeEnv === "production";
     const publicKey = env.DISCORD_PUBLIC_KEY || "";
     const validateSignature = lerBooleano(
@@ -38,6 +43,12 @@ function createConfig(env = process.env) {
 
     if (publicKey && !/^[0-9a-fA-F]{64}$/.test(publicKey)) {
         throw new Error("DISCORD_PUBLIC_KEY deve ter 64 caracteres hexadecimais.");
+    }
+
+    for (const nome of ["DISCORD_CHANNEL_ID", "DISCORD_APPLICATION_ID"]) {
+        if (env[nome] && !/^\d{17,20}$/.test(env[nome])) {
+            throw new Error(`${nome} deve ser um ID numérico válido do Discord.`);
+        }
     }
 
     if (production) {

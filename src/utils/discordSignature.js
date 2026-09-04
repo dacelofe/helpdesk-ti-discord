@@ -20,9 +20,7 @@ exports.validarAssinatura = (req) => {
     if (
         typeof req.rawBody !== "string" ||
         !/^[0-9a-fA-F]{128}$/.test(signature || "") ||
-        typeof timestamp !== "string" ||
-        timestamp.length === 0 ||
-        timestamp.length > 64 ||
+        !/^\d{1,20}$/.test(timestamp || "") ||
         !/^[0-9a-fA-F]{64}$/.test(publicKey || "")
     ) {
         return false;

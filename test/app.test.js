@@ -137,6 +137,17 @@ test("assinatura ausente ou inválida retorna 401", async () => {
         "00".repeat(64)
     );
     assert.equal(invalida.status, 401);
+
+    const timestampMalformado = await fetch(`${baseUrl}/webhook/discord`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-Signature-Timestamp": "não-numerico",
+            "X-Signature-Ed25519": "00".repeat(64)
+        },
+        body: JSON.stringify({ type: 1 })
+    });
+    assert.equal(timestampMalformado.status, 401);
 });
 
 test("PING assinado sobre o corpo bruto retorna PONG e persiste", async () => {
@@ -178,8 +189,8 @@ test("produção recusa validação de assinatura desativada", () => {
         () => createConfig({
             NODE_ENV: "production",
             DISCORD_TOKEN: "token-de-teste",
-            DISCORD_CHANNEL_ID: "canal-de-teste",
-            DISCORD_APPLICATION_ID: "aplicacao-de-teste",
+            DISCORD_CHANNEL_ID: "1".repeat(18),
+            DISCORD_APPLICATION_ID: "2".repeat(18),
             DISCORD_PUBLIC_KEY: "00".repeat(32),
             DISCORD_VALIDATE_SIGNATURE: "false"
         }),

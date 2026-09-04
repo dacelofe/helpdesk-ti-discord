@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config({ quiet: true });
 
 const { REST, Routes, SlashCommandBuilder } = require("discord.js");
 const { getConfig } = require("./config");
@@ -63,7 +63,8 @@ const rest = new REST({
 
     catch (erro) {
 
-        console.error(erro);
+        console.error(`Falha ao registrar comandos: ${erro.name}.`);
+        process.exitCode = 1;
 
     }
 
