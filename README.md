@@ -1,371 +1,119 @@
-# 🎫 HelpDesk TI Discord
+# HelpDesk TI Discord
 
-Sistema Web para abertura e gerenciamento de chamados de suporte técnico com integração ao Discord, desenvolvido em **Node.js**, **Express**, **SQLite** e **Discord API**.
+Aplicação web para abertura de chamados, persistência em SQLite e envio de embeds
+para um canal do Discord. O frontend e a API são servidos pelo mesmo Express e,
+em produção, ficam atrás de Nginx com HTTPS.
 
-O projeto permite que um usuário abra um chamado através de uma interface web, registre as informações em um banco de dados SQLite e envie automaticamente uma notificação para um canal do Discord utilizando um Bot.
+## Requisitos
 
----
+- Node.js 22 ou superior (`better-sqlite3` exige essa versão)
+- npm
+- Credenciais de uma aplicação/bot Discord
+- Docker Engine com o plugin Compose para implantação em contêiner
 
-# 📌 Funcionalidades
+## Configuração
 
-- ✅ Dashboard Web
-- ✅ Abertura de chamados
-- ✅ Integração com Bot do Discord
-- ✅ Envio automático de Embed para um canal
-- ✅ Banco de dados SQLite
-- ✅ Persistência dos chamados
-- ✅ Registro das interações do Discord
-- ✅ Webhook para Discord Interactions
-- ✅ Slash Command
-- ✅ Integração utilizando ngrok
-- ✅ Configuração através de variáveis de ambiente
+Copie `.env.example` para `.env` e substitua todos os placeholders. Nunca versione
+o `.env` nem bancos SQLite.
 
----
+| Variável | Uso |
+| --- | --- |
+| `NODE_ENV` | `development`, `test` ou `production` |
+| `PORT` | porta HTTP interna; padrão 3000 |
+| `APP_PORT` | porta de loopback publicada pelo Compose; padrão 3000 |
+| `DB_PATH` | caminho do SQLite; em produção, `/data/helpdesk.db` |
+| `DISCORD_TOKEN` | token do bot |
+| `DISCORD_CHANNEL_ID` | canal que recebe os chamados |
+| `DISCORD_APPLICATION_ID` | ID usado no registro do slash command |
+| `DISCORD_PUBLIC_KEY` | chave Ed25519 pública, 64 caracteres hexadecimais |
+| `DISCORD_VALIDATE_SIGNATURE` | deve ser `true` em produção |
 
-# 🛠 Tecnologias Utilizadas
+Em produção, a inicialização falha se faltar uma variável Discord obrigatória ou
+se a validação de assinatura estiver desativada.
 
-- Node.js
-- Express.js
-- Discord.js v14
-- SQLite
-- Better-SQLite3
-- dotenv
-- CORS
-- Axios
-- TweetNaCl (validação de assinatura)
-- ngrok
-
----
-
-# 📁 Estrutura do Projeto
-
-```
-CHAMADO/
-│
-├── public/
-│   ├── css/
-│   ├── js/
-│   ├── index.html
-│   └── novoChamado.html
-│
-├── src/
-│   ├── config/
-│   ├── controllers/
-│   ├── database/
-│   ├── repositories/
-│   ├── routes/
-│   ├── services/
-│   ├── utils/
-│   ├── registerCommands.js
-│   ├── app.js
-│   └── server.js
-│
-├── helpdesk.db
-├── package.json
-├── .env.example
-├── .gitignore
-└── README.md
-```
-
----
-
-# 🚀 Instalação
-
-Clone o repositório:
+## Desenvolvimento
 
 ```bash
-git clone https://github.com/dacelofe/helpdesk-ti-discord.git
+npm ci
+npm run check
+npm test
+npm start
 ```
 
-Entre na pasta:
+Sem token em desenvolvimento, o servidor HTTP sobe e informa Discord como
+indisponível; importar a aplicação em testes nunca executa login automaticamente.
+
+## Docker Compose
 
 ```bash
-cd helpdesk-ti-discord
+docker compose config --quiet
+docker compose up -d --build
+docker compose ps
 ```
 
-Instale as dependências:
+O serviço roda como usuário não-root, com filesystem raiz somente leitura e volume
+nomeado em `/data`. A publicação é `127.0.0.1:3000`; não abra essa porta na internet.
 
-```bash
-npm install
-```
+Endpoints operacionais:
 
----
+- `GET /health/live`: liveness usada pelo healthcheck do contêiner.
+- `GET /health/ready`: 200 apenas com SQLite e Discord prontos; caso contrário 503.
+- `GET /api/status`: estado usado pelo dashboard.
+- `POST /api/chamados`: cria um chamado; limite de 10 pedidos por IP em 15 minutos.
+- `POST /webhook/discord`: interações Discord autenticadas por Ed25519 sobre o corpo bruto.
 
-# ⚙ Configuração do .env
+O endpoint de chamados valida tipos, comprimentos e prioridade. O embed bloqueia
+menções. Se o SQLite persistir o chamado, mas o Discord falhar, o registro recebe
+o estado `Falha no envio` e a API responde 502 sem expor detalhes internos.
 
-Crie um arquivo chamado:
+## Discord
 
-```
-.env
-```
+O bot usa apenas o Gateway Intent `Guilds`. No canal, conceda `View Channel`,
+`Send Messages` e `Embed Links`.
 
-Utilize o seguinte modelo:
-
-```env
-PORT=3000
-
-DISCORD_TOKEN=SEU_TOKEN_DO_BOT
-
-DISCORD_CHANNEL_ID=ID_DO_CANAL
-
-DISCORD_APPLICATION_ID=APPLICATION_ID
-
-DISCORD_PUBLIC_KEY=PUBLIC_KEY
-
-DISCORD_VALIDATE_SIGNATURE=false
-```
-
-> **Importante:** Nunca envie o arquivo `.env` para o GitHub.
-
----
-
-# ▶ Executando o Projeto
-
-Modo desenvolvimento:
-
-```bash
-npm run dev
-```
-
-ou
-
-```bash
-node src/server.js
-```
-
-Servidor:
-
-```
-http://localhost:3000
-```
-
----
-
-# 🤖 Configuração do Bot Discord
-
-1. Acesse o Discord Developer Portal.
-2. Crie uma nova aplicação.
-3. Crie um Bot.
-4. Copie o **Bot Token**.
-5. Copie a **Application ID**.
-6. Copie a **Public Key**.
-7. Convide o Bot para o servidor.
-8. Conceda permissão para:
-
-- View Channel
-- Send Messages
-- Embed Links
-
----
-
-# 🌐 Configuração do ngrok
-
-Execute:
-
-```bash
-ngrok http 3000
-```
-
-Será gerada uma URL semelhante a:
-
-```
-https://xxxxxxxx.ngrok-free.app
-```
-
-Configure essa URL no Discord:
-
-```
-https://xxxxxxxx.ngrok-free.app/webhook/discord
-```
-
----
-
-# 📡 Registro dos Slash Commands
-
-Execute apenas uma vez:
+Para registrar o comando global `/status`:
 
 ```bash
 npm run register
 ```
 
-ou
+Em Compose, use um contêiner temporário:
 
 ```bash
-node src/registerCommands.js
+docker compose run --rm app npm run register
 ```
 
-Após alguns segundos o comando estará disponível:
+A URL de interações permanente deve ser
+`https://SEU_DOMINIO/webhook/discord`. O webhook devolve 401 para assinatura
+ausente/inválida, `{ "type": 1 }` para PING autenticado e resposta `type: 4` para
+o comando de aplicação.
 
-```
-/status
-```
+## Segurança e persistência
 
----
+- `.dockerignore` exclui Git, `.env`, bancos, módulos do host, logs e backups.
+- Helmet aplica headers defensivos e CSP compatível com Google Fonts e Bootstrap Icons.
+- CORS não é habilitado porque frontend e API compartilham a mesma origem.
+- SQLite usa `foreign_keys=ON`, `busy_timeout=5000` e WAL para uma única instância.
+- Segredos, payloads brutos e conteúdo integral de chamados não são registrados em logs.
 
-# 💾 Banco de Dados
+Não use mais de uma réplica escrevendo no mesmo arquivo SQLite. Para backup,
+restauração, atualização, rollback, Nginx, TLS e diagnóstico em Ubuntu 24.04,
+consulte [DEPLOY_AWS.md](DEPLOY_AWS.md).
 
-O sistema utiliza SQLite.
+## Estrutura principal
 
-Principais tabelas:
-
-## chamados
-
-Armazena os chamados criados pela aplicação.
-
-Campos principais:
-
-- protocolo
-- nome
-- departamento
-- categoria
-- prioridade
-- descricao
-- discord_message_id
-
----
-
-## mensagens
-
-Armazena as interações recebidas do Discord.
-
-Campos principais:
-
-- id_externo
-- status
-- payload_bruto
-
----
-
-# 🔄 Fluxo da Aplicação
-
-```
-Usuário
-
-        │
-
-        ▼
-
-Interface Web
-
-        │
-
-        ▼
-
-Express API
-
-        │
-
-        ▼
-
-SQLite
-
-        │
-
-        ▼
-
-Discord Bot
-
-        │
-
-        ▼
-
-Canal de Suporte
+```text
+public/                 frontend estático
+src/config/             configuração e ciclo de vida do Discord
+src/controllers/        controladores HTTP e saúde
+src/database/           conexão, pragmas e schema SQLite
+src/services/           regras de chamados, Discord e webhook
+test/                   testes node:test
+deploy/nginx/            exemplo de proxy reverso
+Dockerfile              imagem de produção Node 22 Debian slim
+compose.yaml             serviço e volume persistente
 ```
 
----
+## Licença
 
-# 📋 Fluxo das Interações
-
-```
-Discord
-
-      │
-
-      ▼
-
-Webhook
-
-      │
-
-      ▼
-
-Validação da Assinatura
-
-      │
-
-      ▼
-
-Persistência SQLite
-
-      │
-
-      ▼
-
-Resposta ao Discord
-```
-
----
-
-# 🔐 Segurança
-
-O projeto utiliza:
-
-- Variáveis de ambiente
-- Token fora do Git
-- Public Key fora do Git
-- Validação da assinatura do Discord (Ed25519)
-- `.gitignore`
-
----
-
-# 🧪 Testes Realizados
-
-- Abertura de chamado pela interface
-- Persistência no SQLite
-- Envio para o Discord
-- Slash Command
-- Registro das interações
-- Webhook
-- Integração via ngrok
-
----
-
-# 📷 Evidências Recomendadas
-
-Para apresentação do projeto, recomenda-se registrar:
-
-- Interface Web
-- Chamado criado
-- Mensagem enviada ao Discord
-- Banco SQLite
-- Slash Command
-- Endpoint configurado
-- Repositório GitHub
-
----
-
-# 📈 Melhorias Futuras
-
-- Sistema de autenticação de usuários
-- Painel administrativo
-- Fechamento e reabertura de chamados
-- Dashboard com indicadores
-- Histórico de atendimentos
-- Notificações em tempo real
-- Integração com e-mail
-- Upload de anexos
-- API REST documentada com Swagger
-
----
-
-# 👨‍💻 Autor
-
-**Marcelo Felipe**
-
-Projeto desenvolvido para a disciplina de Desenvolvimento de Sistemas, demonstrando integração entre aplicações Web, banco de dados SQLite e a API oficial do Discord.
-
----
-
-# 📄 Licença
-
-Este projeto possui finalidade exclusivamente acadêmica.
+Projeto acadêmico, licenciado conforme o arquivo `package.json`.
