@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
-    "register": "node src/registerCommands.js"
+    "register": "node src/registerCommands.js",
+    "check": "node scripts/check.js",
+    "test": "node --test --test-concurrency=1"
   },
   "keywords": [],
   "author": "",
