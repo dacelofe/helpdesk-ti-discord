@@ -1,4 +1,19 @@
-const API_URL = "http://localhost:3000/api";
+const API_URL = "/api";
+
+async function verificarStatus() {
+
+    const response = await fetch(`${API_URL}/status`, {
+        headers: {
+            "Accept": "application/json"
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error("Não foi possível consultar o status do serviço.");
+    }
+
+    return response.json();
+}
 
 async function criarChamado(dados) {
 
