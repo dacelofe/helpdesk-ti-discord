@@ -1,0 +1,39 @@
+services:
+  app:
+    image: marcelobarbusa/helpdesk-ti-discord${IMAGE_VERSION:?Set IMAGE_VERSION to :sha-COMMIT or @sha256:DIGEST}
+    restart: unless-stopped
+    env_file:
+      - ${HELPDESK_ENV_FILE:-.env}
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_PATH: /data/helpdesk.db
+    ports:
+      - "127.0.0.1:${APP_PORT:-3000}:3000"
+    volumes:
+      - helpdesk_data:/data
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3000/health/live').then(r => { if (!r.ok) process.exit(1); }).catch(() => process.exit(1));"]
+      interval: 10s
+      timeout: 5s
+      start_period: 15s
+      retries: 6
+    stop_grace_period: 15s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  helpdesk_data:
+    external: true
+    name: ${HELPDESK_DATA_VOLUME:?Identify and set the existing SQLite volume}
