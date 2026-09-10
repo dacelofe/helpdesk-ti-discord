@@ -1,5 +1,9 @@
 # Implantação na AWS EC2
 
+Para imagens publicadas e deploy automático, siga [CI_CD.md](CI_CD.md).
+As instruções abaixo de build na VM são o fluxo manual anterior; não as misture
+com a operação do Compose de produção, que exige identidade e volume explícitos.
+
 Este guia assume Ubuntu Server 24.04 LTS x86_64 em uma EC2 pública. Substitua
 sempre `SEU_DOMINIO`, `SEU_EMAIL`, `IP_DA_VM`, `SEU_IP_PUBLICO` e caminhos de
 exemplo. Os comandos devem ser executados na raiz do repositório, salvo indicação.
